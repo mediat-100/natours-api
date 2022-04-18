@@ -1,8 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
 const AppError = require('./utils/appError');
-const globalErorrHandler = require('./controllers/error');
-const authRoutes = require('./routes/auth.route');
+const globalErorrHandler = require('./controllers/errorController');
+const authRouter = require('./routes/authRoute');
+const tourRouter = require('./routes/tourRoute');
 
 const app = express();
 
@@ -10,7 +11,9 @@ app.use(morgan('dev')); // logger
 
 app.use(express.json()); //body-parser
 
-app.use('/api/v1/auth', authRoutes);
+// routes
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/tours', tourRouter);
 
 // handling undefined routes
 app.all('*', (req, res, next) => {
