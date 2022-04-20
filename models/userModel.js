@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a password'],
     min: 8,
-    select: false
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -36,8 +36,9 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['user', 'admin', 'lead-guide', 'guide'],
-    default: 'user'
-  }
+    default: 'user',
+  },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -51,6 +52,14 @@ userSchema.methods.correctPassword = async function (
   userPassword
 ) {
   return await bcrypt.compare(bodyPassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTimeStamp) {
+  if (this.passwordChangedAt) {
+    passwordChangeTime = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+    return JWTimeStamp < passwordChangeTime;
+  }
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
