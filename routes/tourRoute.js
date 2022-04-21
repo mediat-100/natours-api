@@ -4,8 +4,8 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.route('/').post(tourController.createTour);
-router.route('/').get(authController.protect, tourController.getAllTours);
-router.route('/:id').get(tourController.getTour).put(tourController.updateTour).delete(tourController.deleteTour);
+router.route('/').post(authController.protect, tourController.createTour);
+router.route('/').get(authController.protect, authController.restrictTo('admin'), tourController.getAllTours);
+router.route('/:id').get(tourController.getTour).put(authController.protect, tourController.updateTour).delete(authController.protect, tourController.deleteTour);
 
 module.exports = router;
