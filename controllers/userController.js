@@ -29,19 +29,14 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     new: true,
   });
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-    expiresIn: '5d',
-  });
-
   res.status(200).json({
     status: 'success',
     data: user,
-    token,
   });
 });
 
 exports.deleteUser = catchAsync(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(req.user.id, { status: 'inactive' });
+  await User.findByIdAndUpdate(req.user.id, { status: 'inactive' });
 
   res.status(200).json({
     status: 'success',

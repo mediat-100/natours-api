@@ -6,6 +6,20 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
 
+const sendToken = (user, status, statusCode, res) => {
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+
+  user.password = undefined;
+
+  return res.status(statusCode).json({
+    status,
+    data: user,
+    token,
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
 
@@ -13,16 +27,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const newUser = await User.create(req.body);
 
-  const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, {
-    expiresIn: '5d',
-  });
-
-  res.status(200).json({
-    status: 'success',
-    message: 'Registration successful',
-    data: newUser,
-    token,
-  });
+  sendToken(newUser, 'success', 200, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -37,18 +42,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password)))
     return next(new AppError('Incorrect email or password', 401));
 
-  user.password = undefined;
-
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-    expiresIn: '5d',
-  });
-
-  res.status(200).json({
-    status: 'success',
-    message: 'Login Successful',
-    data: user,
-    token,
-  });
+  sendToken(user, 'success', 200, res);
 });
 
 // auth middleware
@@ -157,13 +151,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
-
-  res.status(200).json({
-    status: 'success',
-    token,
-    data: user,
-  });
+  sendToken(user, 'success', 200, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -177,13 +165,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  user.password = undefined;
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
-
-  res.status(200).json({
-    status: 'success',
-    message: 'Password updated successfully',
-    data: user,
-    token,
-  });
+  sendToken(user, 'success', 200, res);
 });
