@@ -30,7 +30,9 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!email || !password)
     return next(new AppError('Please input your email and password', 401));
 
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email, status: 'active' }).select(
+    '+password'
+  );
 
   if (!user || !(await user.correctPassword(password, user.password)))
     return next(new AppError('Incorrect email or password', 401));
@@ -161,5 +163,27 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     status: 'success',
     token,
     data: user,
+  });
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user._id).select('+password');
+
+  if (!(await user.correctPassword(req.body.password, user.password)))
+    return next(new AppError('The password inputted is incorrect', 400));
+
+  user.password = req.body.newPassword;
+  user.passwordConfirm = req.body.passwordConfirm;
+
+  await user.save();
+
+  user.password = undefined;
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Password updated successfully',
+    data: user,
+    token,
   });
 });
