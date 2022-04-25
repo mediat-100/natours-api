@@ -8,7 +8,7 @@ const tourSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       maxlength: [40, 'A tour name must have at most 40 characters'],
-      minlength: [10, 'A tour name must have at least 10 characters']
+      minlength: [10, 'A tour name must have at least 10 characters'],
     },
     slug: String,
     duration: {
@@ -46,7 +46,7 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       validate: {
         validator: function (val) {
-          return val < this.price; 
+          return val < this.price;
         },
         message: 'Discount price {VALUE} should be below regular price',
       },
@@ -106,12 +106,22 @@ const tourSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
-  }, 
+  },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  } 
+  }
 );
+
+tourSchema.virtual('durationWeeks').get(function () {
+  return this.duration / 7;
+});
+
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 

@@ -5,6 +5,7 @@ const globalErorrHandler = require('./controllers/errorController');
 const authRouter = require('./routes/authRoute');
 const tourRouter = require('./routes/tourRoute');
 const userRouter = require('./routes/userRoute');
+const reviewRouter = require('./routes/reviewRoute');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json()); //body-parser
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // handling undefined routes
 app.all('*', (req, res, next) => {

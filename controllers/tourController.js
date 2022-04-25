@@ -12,9 +12,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
 
   res.status(201).json({
     status: 'success',
-    data: {
-      tour: newTour,
-    },
+    data: newTour,
   });
 });
 
@@ -28,26 +26,22 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
   const response = await features.query;
 
   if (response.length == 0)
-    return next(new AppError('No avaliable tour found!', 400));
+    return next(new AppError('No avaliable tour found!', 404));
 
   res.status(200).json({
     result: response.length,
     status: 'success',
-    data: {
-      response,
-    },
+    data: response,
   });
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate('reviews');
 
   if (!tour) return next(new AppError('TourID not found!'), 404);
 
   res.status(200).json({
-    data: {
-      tour,
-    },
+    data: tour,
   });
 });
 
@@ -61,9 +55,7 @@ exports.updateTour = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    data: {
-      tour: updatedTour,
-    },
+    data: updatedTour,
   });
 });
 
