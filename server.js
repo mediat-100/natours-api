@@ -1,13 +1,15 @@
 const mongoose = require('mongoose');
 const http = require('http');
 const dotenv = require('dotenv');
-const app = require('./app');
-
 dotenv.config({ path: './.env' });
+
+const app = require('./app');
 
 const server = http.createServer(app);
 
 const port = process.env.PORT || 3000;
+
+console.log(process.env.NODE_ENV);
 
 mongoose
   .connect(process.env.MONGO_URI, {

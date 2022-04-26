@@ -4,10 +4,6 @@ const catchAsync = require('../utils/catchAsync');
 const ApiFeatures = require('../utils/apiFeatures');
 
 exports.createTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findOne({ name: req.body.name });
-
-  if (tour) return next(new AppError('Tour Already Exist', 400));
-
   const newTour = await Tour.create(req.body);
 
   res.status(201).json({
